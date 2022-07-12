@@ -1,9 +1,14 @@
+import 'package:chitribe/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'Pages/CalendarPage.dart';
 import 'Pages/SearchPage.dart';
 import 'Pages/HomePage.dart';
-void main() {
-  runApp(const MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp( options: DefaultFirebaseOptions.currentPlatform,);
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -31,7 +36,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   int _selectedIndex = 0;
   static const TextStyle optionStyle =
       TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
+  static List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     CalendarPage(),
     SearchPage()
@@ -50,7 +55,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Image.asset('assets/logo.png', height: AppBar().preferredSize.height, fit: BoxFit.fitWidth),
-        backgroundColor: Colors.white
+        backgroundColor: Colors.black,
         
       ),
       body: Center(
@@ -81,3 +86,4 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     );
   }
 }
+

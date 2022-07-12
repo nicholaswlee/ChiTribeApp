@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "349174942739",
+    "project_id": "chitribe-app",
+    "storage_bucket": "chitribe-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349174942739:android:58ad967879454db3b343e6",
+        "android_client_info": {
+          "package_name": "com.example.chitribe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "349174942739-p1f5nc262s5n1cfcg0db5ntj37etjvof.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAkMB_5Um3qf3GIM6daSjbGrtZ2kvem3is"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "349174942739-p1f5nc262s5n1cfcg0db5ntj37etjvof.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "349174942739-6v7vf2hf58707b9qpllmi99a70phnrkt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chitribe"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
