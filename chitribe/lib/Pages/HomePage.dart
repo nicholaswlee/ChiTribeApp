@@ -86,12 +86,12 @@ class PostInfoState extends State<PostInfo> {
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                     color: Colors.blue
                   ),
-                  height: 200,
+                  height: 210,
                   child: Column(
                       children: <Widget>[
                       Container(
                         padding: EdgeInsets.fromLTRB(16, 16, 0, 0),
-                        height: 50,
+                        height: 60,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.red[800],

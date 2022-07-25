@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 class PostPage extends StatefulWidget {
   const PostPage(
     this.title,
@@ -52,6 +54,13 @@ class PostPageState extends State<PostPage> {
               ),
               Html(
                 data: widget.body,
+                  onLinkTap: (url, _, __, ___) async {
+                      if (await canLaunchUrl(Uri.parse(url!))) {
+                        await launchUrl(
+                          Uri.parse(url),
+                        );
+                      } 
+                    },
               )
             ],
           )
