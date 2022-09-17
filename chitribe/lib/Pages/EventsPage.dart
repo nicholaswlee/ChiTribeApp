@@ -64,7 +64,7 @@ class EventPageState extends State<EventPage> {
                           ),
                           GestureDetector(
                             child: Text(
-                              "Website: ${widget.event.siteUrl}",
+                              "${widget.event.siteUrl}",
                               style: TextStyle(
                                   color: Colors.blue, 
                                   decoration: TextDecoration.underline,
@@ -132,7 +132,6 @@ find_month(int month){
 }
 
 remove_unicode(String str){
-  print(str);
   if(str.contains("&amp;")){
     str = str.replaceAll("&amp;", "&");
   }
@@ -167,7 +166,7 @@ class EventItem{
   final String monthName;
   final String day;
   final String timeRange;
-  final List<String> categories;
+  final List<dynamic> categories;
   EventItem({
     required this.name,
     required this.startDate,
@@ -213,6 +212,25 @@ class EventItem{
                   json["end_date_details"]["minutes"],
                 ),
       categories: get_categories(json)
+    );
+    
+  }
+  factory EventItem.fromFirebase(Map<String, dynamic>? data){
+    return EventItem(
+      name: data!["title"], 
+      startDate: data["startDate"], 
+      endDate: data["endDate"], 
+      id: data["id"], 
+      imgUrl: (data["imgUrl"] == "") ? "https://chitribe.org/wp-content/uploads/2019/02/51376315_10157313150659924_4463146571655020544_o.jpg": data["imgUrl"], 
+      organizer: data["organizer"],
+      htmlDesc: data["description"],
+      siteUrl: data["siteUrl"],
+      year: data["year"],
+      month: data["month"],
+      monthName: find_month(int.parse(data["month"])),
+      day: data["day"],
+      timeRange: data["time_range"],
+      categories: data["categories"]
     );
     
   }

@@ -1,89 +1,163 @@
-import 'package:chitribe/firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'Pages/CalendarPage.dart';
-import 'Pages/SearchPage.dart';
-import 'Pages/HomePage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import "Authentication/authentication.dart";
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp( options: DefaultFirebaseOptions.currentPlatform,);
-  runApp(MyApp());
-}
+void main() => runApp(
+  ChangeNotifierProvider(
+      create: (context) => ApplicationState(),
+      builder: (context, _) => const MyApp(),
+    ),
+  );
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
-  static const String _title = 'FoodFight';
+  static const String _title = 'ChiTribe';
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: _title,
-      home: MyStatefulWidget(),
+      home: Consumer<ApplicationState>(
+            builder: (context, appState, _) => Authentication(
+              email: appState.email,
+              loginState: appState.loginState,
+              startLoginFlow: appState.startLoginFlow,
+              verifyEmail: appState.verifyEmail,
+              signInWithEmailAndPassword: appState.signInWithEmailAndPassword,
+              cancelRegistration: appState.cancelRegistration,
+              registerAccount: appState.registerAccount,
+              signOut: appState.signOut,
+              deleteAccount: appState.deleteAccount,
+              skipAccountCreation: appState.skipAccountCreation,
+            ),
+          ),
     );
   }
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
 
-  @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
-}
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    CalendarPage(),
-    SearchPage()
-  ];
+class ApplicationState extends ChangeNotifier {
+  ApplicationState() {
+    init();
+  }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
+  Future<void> init() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    FirebaseAuth.instance.userChanges().listen((user) {
+      if (user != null) {
+        _loginState = ApplicationLoginState.loggedIn;
+      } else {
+        _loginState = ApplicationLoginState.loggedOut;
+      }
+      notifyListeners();
     });
   }
-  
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Image.asset('assets/logo.png', height: AppBar().preferredSize.height, fit: BoxFit.fitWidth),
-        backgroundColor: Colors.black,
-        
-      ),
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.red[700],
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home,size:30),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month ,size:30),
-            label: 'Calendar',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search, size:30),
-            label: 'Search',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        selectedItemColor: Colors.white,
-        onTap: _onItemTapped,
-      ),
-    );
+  ApplicationLoginState _loginState = ApplicationLoginState.loggedOut;
+  ApplicationLoginState get loginState => _loginState;
+
+  String? _email;
+  String? get email => _email;
+
+  void startLoginFlow() {
+    _loginState = ApplicationLoginState.emailAddress;
+    notifyListeners();
+  }
+  void skipAccountCreation() {
+    _loginState = ApplicationLoginState.skipAccount;
+    notifyListeners();
+  }
+
+
+  Future<void> verifyEmail(
+    String email,
+    void Function(FirebaseAuthException e) errorCallback,
+  ) async {
+    try {
+      var methods =
+          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      if (methods.contains('password')) {
+        _loginState = ApplicationLoginState.password;
+      } else {
+        _loginState = ApplicationLoginState.register;
+      }
+      _email = email;
+      notifyListeners();
+    } on FirebaseAuthException catch (e) {
+      errorCallback(e);
+    }
+  }
+
+  Future<void> signInWithEmailAndPassword(
+    String email,
+    String password,
+    void Function(FirebaseAuthException e) errorCallback,
+  ) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException catch (e) {
+      errorCallback(e);
+    }
+  }
+  Future<void> deleteAccount(
+  ) async {
+     User user = FirebaseAuth.instance.currentUser!;
+     print("Deleting user data");
+     await FirebaseFirestore.instance
+        .collection('users').doc(FirebaseAuth.instance.currentUser!.uid).delete();
+     print("Deleting user");
+     await user.delete();
+    _loginState = ApplicationLoginState.loggedOut;
+  }
+
+
+  void cancelRegistration() {
+    _loginState = ApplicationLoginState.emailAddress;
+    notifyListeners();
+  }
+
+  Future<void> registerAccount(
+      String email,
+      String displayName,
+      String password,
+      void Function(FirebaseAuthException e) errorCallback) async {
+    try {
+      var credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      await credential.user!.updateDisplayName(displayName);
+    } on FirebaseAuthException catch (e) {
+      errorCallback(e);
+    }
+    FirebaseFirestore.instance
+        .collection('users').doc(FirebaseAuth.instance.currentUser!.uid)
+        .set({
+          'name' : displayName,
+          'email' : email,
+          'favoritedEvents' : [],
+          'userId': FirebaseAuth.instance.currentUser!.uid
+        });
+  }
+
+  void signOut() {
+    FirebaseAuth.instance.signOut();
+    print("Here1");
+    _loginState = ApplicationLoginState.loggedOut;
+    print("Here2");
+    notifyListeners();
   }
 }
+
 

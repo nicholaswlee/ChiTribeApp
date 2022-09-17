@@ -1,279 +1,266 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import "EventsPage.dart";
+import 'Calendar.dart';
 
 class CalendarPage extends StatefulWidget{
   @override
   CalendarPageState createState() => CalendarPageState();
 }
+
 class CalendarPageState extends State<CalendarPage> {
-  //final Map<DateTime, List<EventItem>> _allEvents = getData();
-  Future<Map<DateTime, List<EventItem>>> getData() async {
-    print("hello");
-    var response = await http.get(
-      Uri.parse("https://chitribe.org/wp-json/tribe/events/v1/events?per_page=20&start_date=${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}&end_date=2022-12-01"),
-    );
-    if(response.statusCode == 200){
-      print("Success");
-    }
-    print("Hello 1");
-    final data = json.decode(response.body) as Map<String, dynamic>;
-    List<EventItem> _events = [];
-    print("Hello 2");
-    print(data["events"].length);
-    for(var i = 0; i < data["events"].length; i++){
-      print(i);
-      _events.add(EventItem.fromJson(data["events"][i]));
-      print("Added");
-    }
-    print("Hello");
-    Map<DateTime, List<EventItem>> mappedEvents = {};
-    for(var j = 0; j < _events.length; j++){
-      if(mappedEvents[_events[j].getDay()] == null){
-        mappedEvents[_events[j].getDay()] = [_events[j]];
-      }else{
-        mappedEvents[_events[j].getDay()]?.add(_events[j]);
-      }
-    }
-    return mappedEvents;
+  List<String> filtered = [];
+  List<String> filteredApplied = [];
+  final filterOptions = [
+    "Antisemitism",
+    "Book Club",
+    "City",
+    "Climate",
+    "Comedy",
+    "Events",
+    "Food",
+    "Game Night",
+    "Happy Hour",
+    "Holiday Event",
+    "Holocaust",
+    "Israel Event",
+    "Jewish Genetics",
+    "Learning",
+    "LGBTQ",
+    "Music",
+    "Native Americans",
+    "Networking",
+    "Passover Event",
+    "Racial Justice",
+    "Russian Speaking",
+    "Shabbat Event",
+    "Socially Distanced",
+    "Special Needs",
+    "Sports",
+    "Suburb",
+    "Travel Opportunity",
+    "Virtual",
+    "Volunteering",
+    "Women",
+    "Yoga",
+    "Young Family"
+  ];
+  void setFilters(){
+    filteredApplied = filtered;
+    setState((){});
+    Navigator.of(context).pop();
   }
-
-  @override
-  Widget build(BuildContext context) {
-      return FutureBuilder<Map<DateTime, List<EventItem>>>(
-        future: getData(),
-        builder: (context, eventsSnap) {
-          if (eventsSnap.connectionState == ConnectionState.none &&
-              eventsSnap.hasData == null) {
-            //print('project snapshot data is: ${projectSnap.data}');
-            return Container();
-          }else{
-            return CalendarPageWidget(eventsSnap.data);
-          }
-          
-        },
-      );
-  }
-}
-
- class CalendarPageWidget extends StatefulWidget {
-   final Map<DateTime, List<EventItem>>? events;
-   CalendarPageWidget(this.events);
-  @override
-  CalendarPageWidgetState createState() => CalendarPageWidgetState();
-}
-
-class CalendarPageWidgetState extends State<CalendarPageWidget> {
-  CalendarFormat _calendarFormat = CalendarFormat.month;
-  late final ValueNotifier<List<EventItem>> _selectedEvents;
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
-  }
-
-  @override
-  List<EventItem> _getEventsForDay(DateTime day) {
-    // Implementation exampl
-    return widget.events?[day] ?? [];
-  }
-    @override
-   void _pushPost(EventItem event) {
-    Navigator.of(context).push(
-      // Add lines from here...
-      MaterialPageRoute<void>(
-        builder: (context) {
-          return Scaffold(
-            backgroundColor: Color.fromARGB(255, 246, 243, 200),
-            appBar: AppBar(
-              title: Text(
-                      event.name,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold
-                      )
-                    ),
-              backgroundColor: Colors.red[800],
-            ),
-            body: Center(
-                child: EventPage(event),
-            )
-          );
-        },
-      ), // ...to here.
-    );
-  }
-  @override
-  Widget build(BuildContext context) {
-    return  Column (
-      children: <Widget>[
-        TableCalendar(
-          firstDay: DateTime.utc(2010, 10, 16),
-          lastDay: DateTime.utc(2030, 3, 14),
-          focusedDay: _focusedDay,
-          calendarFormat: _calendarFormat,
-          eventLoader: _getEventsForDay,
-          availableCalendarFormats:  const {CalendarFormat.month : 'Week', CalendarFormat.twoWeeks : 'Month', CalendarFormat.week : 'Two Weeks'},
-          selectedDayPredicate: (day) {
-            // Use `selectedDayPredicate` to determine which day is currently selected.
-            // If this returns true, then `day` will be marked as selected.
-
-            // Using `isSameDay` is recommended to disregard
-            // the time-part of compared DateTime objects.
-            return isSameDay(_selectedDay, day);
-          },
-          onDaySelected: (selectedDay, focusedDay) {
-            if (!isSameDay(_selectedDay, selectedDay)) {
-              // Call `setState()` when updating the selected day
-              setState(() {
-                _selectedDay = selectedDay;
-                _focusedDay = focusedDay;
-              });
-            }
-            _selectedEvents.value = _getEventsForDay(selectedDay);
-          },
-          onFormatChanged: (format) {
-            if (_calendarFormat != format) {
-              // Call `setState()` when updating calendar format
-              setState(() {
-                _calendarFormat = format;
-              });
-            }
-          },
-          onPageChanged: (focusedDay) {
-            // No need to call `setState()` here
-            _focusedDay = focusedDay;
-          },
-        ),
-        const SizedBox(height: 8.0),
-          Expanded(
-            child: Container(
-              margin: EdgeInsets.fromLTRB(16, 0, 16, 8),
-              //padding: EdgeInsets.fromLTRB(0, 8, 0, 8),
-              decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.black,  // red as border color
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          /*borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
-                          ),*/
+  void _showErrorDialog(BuildContext context, String title) {
+    showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            title,
+            style: const TextStyle(fontSize: 24),
+          ),
+          actions: <Widget>[
+            FilterButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                ),
               ),
-              child: ValueListenableBuilder<List<EventItem>>(
-              valueListenable: _selectedEvents,
-              builder: (context, value, _) {
-                return ListView.builder(
-                  itemCount: value.length,
-                  itemBuilder: (context, index) {
-                      return Container(
-
-                        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Colors.black,  // red as border color
-                          ),
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                          color: Colors.blue
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void showFilters() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    20.0,
+                  ),
+                ),
+              ),
+              contentPadding: EdgeInsets.only(
+                top: 10.0,
+              ),
+              title: Text(
+                "Filter Categories",
+                style: TextStyle(fontSize: 24.0),
+              ),
+              content: Container(
+                height: 600,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+              flex: 5, 
+              child: Container(
+                width: double.maxFinite,
+                 margin:  EdgeInsets.fromLTRB(20, 0, 20, 10),
+                 decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black,  // red as border color
                         ),
-                        height: 170,
-                        child: Column(
-                            children: <Widget>[
-                            Container(
-                              padding: EdgeInsets.fromLTRB(16, 16, 0, 0),
-                              height: 60,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.red[800],
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20),
-                                ),
-                              ),
-                              child: Text(value[index].name,
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      )
+                        borderRadius: BorderRadius.circular(20.0),
+                        color: Colors.blue
+                ),
+                child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: filterOptions.length,
+                  padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                    itemBuilder: (context, int index) {
+                      final alreadyFiltered = filtered.contains(filterOptions[index]);
+                      return Padding(
+                          padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
+                          child: Container(
+                            margin:  EdgeInsets.fromLTRB(0, 0, 0, 0),
+                            decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,  // red as border color
+                                    ),
+                                    borderRadius: BorderRadius.circular(20.0),
+                                    color: Colors.red[800]
+                            ),
+                            child: ListTile(
+                            title: Text(
+                              filterOptions[index],
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               )
                             ),
-                            Container(
-                              padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                              height: 108,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.black,  // red as border color
-                                ),
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(20),
-                                  bottomRight: Radius.circular(20),
-                                ),
-                                color: Colors.white
-                              ),
-                              child: ListTile(
-                              onTap:(() {
-                                _pushPost(value[index]);
-                              } ),
-                              title: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Expanded(
-                                          flex: 1,
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: <Widget>[
-                                                    Text(
-                                                      "Organizer: ${value[index].organizer}",
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold
-                                                      )
-                                                    ),
-                                                    Text(
-                                                      value[index].timeRange,
-                                                      style: TextStyle(
-                                                        fontSize: 12
-                                                      )
-                                                    )
-                                                  ]
-                                                )
-                                                )
-                                                ,
-                                        Expanded(
-                                          flex: 1,
-                                          child: Image.network(
-                                            value[index].imgUrl ?? "assets/logo.png", 
-                                            height: 80, 
-                                            width: 100,
-                                            fit: BoxFit.contain
-                                          )
-                                        ),
-                                      ],
-                                    )
-                              
-                                
-                            ),
+                            enableFeedback: true,
+                            trailing: Icon(    //Creates an icon
+                              alreadyFiltered ? Icons.star : Icons.star_border, //if saved do filled, else just border
+                              color: alreadyFiltered ? Colors.yellow : null,
+                              semanticLabel: alreadyFiltered ? 'Remove from filtered' : 'Filter',
+                            ), 
+                            onTap: () { //Allows the tile to become interactive 
+                              setState(() {
+                                if (alreadyFiltered) {
+                                  filtered.remove(filterOptions[index]);
+                                } else {
+                                  filtered.add(filterOptions[index]);
+                                }
+                              });               
+                            },
                             )
-                        ]
-                    )
+                          )
                       );
-                  },
-                );
-              },
-            ),
-            )
-          ),
+                      
+                        
+                },
+              ),
 
-      ]
-    );
+              )
+              
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 16),
+                  child: FilterButton(
+                  child: Text(
+                    "Filter",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onPressed: (){
+                    if(filtered.length <= 10){
+                      setFilters();
+                    }else{
+                      _showErrorDialog(context, "Please select up to 10 filters");
+                    }
+                    
+                  },
+              ),
+                ),
+              ],
+            )
+            
+                    ],
+                  ),
+              )
+            );
+          }
+        );
+      });
   }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Colors.blue,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Text("The Events Calendar",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                    FilterButton(
+                      child: Text("Filter",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      onPressed:(){
+                        showFilters(
+
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              
+              Expanded(
+                child: Calendar(
+                  filters: (filteredApplied.length == 0) ? [] : filteredApplied
+                      )
+              )
+              
+            ]
+          )
+      );
+  }
+
 }
 
+class FilterButton extends StatelessWidget {
+  const FilterButton({required this.child, required this.onPressed, super.key});
+  final Widget child;
+  final void Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton(
+        style: ButtonStyle(
+            side: MaterialStateProperty.all(BorderSide(color: Colors.black)),
+            backgroundColor: MaterialStateProperty.all(Colors.red[800]),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0))),
+          ),
+        onPressed: onPressed,
+        child: child,
+      );
+}

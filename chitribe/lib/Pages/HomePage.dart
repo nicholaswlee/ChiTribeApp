@@ -54,6 +54,20 @@ class PostInfoState extends State<PostInfo> {
       ), // ...to here.
     );
   }
+  List<Post> convertToPost(List<QueryDocumentSnapshot<Object?>> data){
+    List<Post> posts = [];
+    for(var i = 0; i < data.length; i++){
+      Map<String, dynamic> document = data[i].data() as Map<String, dynamic>;
+      if(document["category"] != null || document["description"] != null){
+        if(document["category"] == null){
+          document["category"] = "Uncategorized";
+        }
+        
+        posts.add(Post.fromMap(document));
+      }
+    }
+    return posts;
+  }
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
       stream: _usersStream,
@@ -67,13 +81,11 @@ class PostInfoState extends State<PostInfo> {
         }
 
         return ListView(
-          children: snapshot.data!.docs.map((DocumentSnapshot document) {
-            
-          Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+          children: convertToPost(snapshot.data!.docs).map((Post data) {
             return ListTile(
               onTap: (() {
-                _pushPost((data["title"] ?? " "), data["category"] ?? "Uncategorized", data["body"] ?? " ", data["image"] ?? "assets/logo.png",
-                          "${data["date"].substring(5, 7)}/${data["date"].substring(8, 10)}/${data["date"].substring(0, 4)}");
+                _pushPost((data.title), data.category, data.body, data.img,
+                          "${data.date.substring(5, 7)}/${data.date.substring(8, 10)}/${data.date.substring(0, 4)}");
               }),
               title: Container(
 
@@ -86,12 +98,10 @@ class PostInfoState extends State<PostInfo> {
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                     color: Colors.blue
                   ),
-                  height: 210,
                   child: Column(
                       children: <Widget>[
                       Container(
-                        padding: EdgeInsets.fromLTRB(16, 16, 0, 0),
-                        height: 60,
+                        padding: EdgeInsets.fromLTRB(16, 16, 16, 16),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.red[800],
@@ -100,7 +110,7 @@ class PostInfoState extends State<PostInfo> {
                             topRight: Radius.circular(20),
                           ),
                         ),
-                        child: Text(data["category"] ?? "Uncategorized",
+                        child: Text(data.category,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold
@@ -108,8 +118,7 @@ class PostInfoState extends State<PostInfo> {
                         )
                       ),
                       Container(
-                        padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-                        height: 148,
+                        padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
                         decoration: BoxDecoration(
                           border: Border.all(
                               color: Colors.black,  // red as border color
@@ -132,13 +141,13 @@ class PostInfoState extends State<PostInfo> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Text(
-                                    data["title"],
+                                    data.title,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold
                                     )
                                   ),
                                   Text(
-                                    "${data["date"].substring(5, 7)}/${data["date"].substring(8, 10)}/${data["date"].substring(0, 4)}",
+                                    "${data.date.substring(5, 7)}/${data.date.substring(8, 10)}/${data.date.substring(0, 4)}",
                                     style: TextStyle(
                                       fontSize: 12
                                     )
@@ -150,7 +159,7 @@ class PostInfoState extends State<PostInfo> {
                               Expanded(
                                 flex: 1,
                                 child: Image.network(
-                                  data["image"] ?? "assets/logo.png", 
+                                  data.img, 
                                   height: 100, 
                                   width: 100,
                                   fit: BoxFit.contain
@@ -169,6 +178,44 @@ class PostInfoState extends State<PostInfo> {
           }).toList(),
         );
       },
+    );
+  }
+}
+
+determineUncategorized(String category, String title){
+  if(category == "Uncategorized"){
+    if(title.contains("Jewish Person of the Week")){
+      category = "Jewish Person of The Week";
+    }else if(title.contains("Business of the Month")){
+      category = "Business of the Month";
+    }
+  }
+  return category;
+}
+class Post{
+  final String title;
+  final String img;
+  final String description;
+  final String category;
+  final String date;
+  final String body;
+  Post(
+    {
+    required this.title, 
+    required this.img, 
+    required this.description, 
+    required this.category, 
+    required this.date, 
+    required this.body, 
+  });
+  factory Post.fromMap(Map<String, dynamic> map){
+    return Post(
+      title: map["title"], 
+      img: map["image"], 
+      description: map["description"] ?? "", 
+      category: determineUncategorized(map["category"], map["title"]), 
+      date: map["date"], 
+      body: map["body"]
     );
   }
 }
