@@ -2,8 +2,8 @@
 The ChiTribe App was created by me to bring the site https://chitribe.org to a mobile application. The app was created by solely by myself using Flutter and backend through Google Firebase. It can be found on the app store [here](https://apps.apple.com/app/chitribe/id1643074096).
 ![Apple iPhone 11 Pro Max Presentation-2](https://user-images.githubusercontent.com/92129167/190951075-56548a07-d5a4-4581-a1bf-a72465c1b4e8.png)
 
-## ChiTribe Page
-This directory contains all the code for the actual application. The code written in dart that the app is composed of is in the lib directory. The ChiTribe app has three core pages: Posts, Events, and Favorites. 
+## ChiTribe
+This directory contains all the code for the actual application. The code written in dart that the app is composed of is in the lib directory. The ChiTribe app has three core pages: Posts, Events, and Favorites. It uses Firebase Auth to allow for users to login and have an account, and Firebase Firestore to store and query through data.
 
 ### Posts Page
 The posts page displays all of the wordpress posts that are published on the ChiTribe site. These posts are sent to our Firebase Firestore database through Zapier. 
