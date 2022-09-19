@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../Authentication/auth_widgets.dart';
 import 'Calendar.dart';
 
+/**
+ * Shows the fake event page for when a user is not logged in. This is for the apple requirement
+ */
 class FakeEventPage extends StatefulWidget{
   const FakeEventPage({
     required this.startLoginFlow,

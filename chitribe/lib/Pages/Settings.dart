@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'CalendarPage.dart';
 
+/**
+ * Defines the settings page. Used as a drawer. Allows a user to delete an account or log out.
+ */
 class Settings extends StatelessWidget{
   const Settings(
     {

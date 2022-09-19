@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import '../Authentication/auth_widgets.dart';
 import 'Calendar.dart';
 
+/**
+ * Displays a fake favorites page for users that haven't created
+ * an account.
+ */
 class FakeFavoritedPage extends StatefulWidget{
   const FakeFavoritedPage({
     required this.startLoginFlow,

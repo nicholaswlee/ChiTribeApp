@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'Calendar.dart';
 
+/**
+ * Displays the full calendar page.
+ */
 class CalendarPage extends StatefulWidget{
   @override
   CalendarPageState createState() => CalendarPageState();
@@ -44,11 +47,17 @@ class CalendarPageState extends State<CalendarPage> {
     "Yoga",
     "Young Family"
   ];
+  /**
+   * Sets the state with the filters
+   */
   void setFilters(){
     filteredApplied = filtered;
     setState((){});
     Navigator.of(context).pop();
   }
+  /**
+   * Shows an error page.
+   */
   void _showErrorDialog(BuildContext context, String title) {
     showDialog<void>(
       context: context,
@@ -76,6 +85,9 @@ class CalendarPageState extends State<CalendarPage> {
       },
     );
   }
+  /**
+   * Shows the filters in a pop up the a user can filter through.
+   */
   void showFilters() {
     showDialog(
       context: context,
@@ -181,6 +193,9 @@ class CalendarPageState extends State<CalendarPage> {
                     ),
                   ),
                   onPressed: (){
+                    /**
+                     * Prevents a user from filtering more than 10 items
+                     */
                     if(filtered.length <= 10){
                       setFilters();
                     }else{
@@ -248,6 +263,9 @@ class CalendarPageState extends State<CalendarPage> {
 
 }
 
+/**
+ * The button that allows a user to filter
+ */
 class FilterButton extends StatelessWidget {
   const FilterButton({required this.child, required this.onPressed, super.key});
   final Widget child;

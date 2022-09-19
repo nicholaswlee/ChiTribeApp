@@ -12,7 +12,9 @@ void main() => runApp(
       builder: (context, _) => const MyApp(),
     ),
   );
-
+/**
+ * Allows the authentication process to work how it is.
+ */
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -42,7 +44,10 @@ class MyApp extends StatelessWidget {
 }
 
 
-
+/**
+ * Allows our login functions to change loginState, which changes depending on what
+ * stage of the login process a user is on.
+ */ 
 class ApplicationState extends ChangeNotifier {
   ApplicationState() {
     init();
@@ -68,17 +73,24 @@ class ApplicationState extends ChangeNotifier {
 
   String? _email;
   String? get email => _email;
-
+  /**
+   * Changes loginFlow to log into email address.
+   */
   void startLoginFlow() {
     _loginState = ApplicationLoginState.emailAddress;
     notifyListeners();
   }
+  /**
+   * Changes loginFlow to skip account creation.
+   */
   void skipAccountCreation() {
     _loginState = ApplicationLoginState.skipAccount;
     notifyListeners();
   }
 
-
+  /**
+   * Checks to see if email has a registered account or not.
+   */
   Future<void> verifyEmail(
     String email,
     void Function(FirebaseAuthException e) errorCallback,
@@ -97,7 +109,9 @@ class ApplicationState extends ChangeNotifier {
       errorCallback(e);
     }
   }
-
+  /**
+   * Allows a user to sign in with their email and password.
+   */
   Future<void> signInWithEmailAndPassword(
     String email,
     String password,
@@ -112,6 +126,9 @@ class ApplicationState extends ChangeNotifier {
       errorCallback(e);
     }
   }
+  /**
+   * Allows our users to delete their account.
+   */
   Future<void> deleteAccount(
   ) async {
      User user = FirebaseAuth.instance.currentUser!;
@@ -123,12 +140,16 @@ class ApplicationState extends ChangeNotifier {
     _loginState = ApplicationLoginState.loggedOut;
   }
 
-
+  /**
+   * Cancels a users registration process.
+   */
   void cancelRegistration() {
     _loginState = ApplicationLoginState.emailAddress;
     notifyListeners();
   }
-
+  /**
+   * Registers a users account, creating a firestore document storing that users data.
+   */
   Future<void> registerAccount(
       String email,
       String displayName,
@@ -150,12 +171,12 @@ class ApplicationState extends ChangeNotifier {
           'userId': FirebaseAuth.instance.currentUser!.uid
         });
   }
-
+  /**
+   * Signs a user out from their account.
+   */
   void signOut() {
     FirebaseAuth.instance.signOut();
-    print("Here1");
     _loginState = ApplicationLoginState.loggedOut;
-    print("Here2");
     notifyListeners();
   }
 }

@@ -6,6 +6,9 @@ import '../Pages/HomePage.dart';
 import '../Pages/Settings.dart';
 import 'auth_widgets.dart';
 
+/**
+ * Defines the different login states that can occur.
+ */
 enum ApplicationLoginState {
   loggedOut,
   emailAddress,
@@ -14,7 +17,10 @@ enum ApplicationLoginState {
   loggedIn,
   skipAccount,
 }
-
+/**
+ * Defines how the login/registration process works for a user. Displays different
+ * pages depending on the loginState.
+ */
 class Authentication extends StatelessWidget {
   const Authentication({
     required this.loginState,
@@ -214,7 +220,10 @@ class Authentication extends StatelessWidget {
     );
   }
 }
-
+/**
+ * Defines the frame of the app, meaning tab navigation and and access to the settings
+ * page. The skeleton of the actual app.
+ */
 class MyStatefulWidget extends StatefulWidget {
   const MyStatefulWidget(
     {
@@ -283,7 +292,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     );
   }
 }
-
+/**
+ * Displays a form that asks for the users email to determine
+ * to register a user or show them the login page.
+ */
 class EmailForm extends StatefulWidget {
   const EmailForm({required this.callback, required this.cancel, super.key});
   final void Function(String email) callback;
@@ -367,6 +379,9 @@ class _EmailFormState extends State<EmailForm> {
   }
 }
 
+/**
+ * The form that allows a new user to register
+ */
 class RegisterForm extends StatefulWidget {
   const RegisterForm({
     required this.registerAccount,
@@ -501,6 +516,9 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 }
 
+/**
+ * The form that allows a returning user to enter their password.
+ */
 class PasswordForm extends StatefulWidget {
   const PasswordForm({
     required this.login,

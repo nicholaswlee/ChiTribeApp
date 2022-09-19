@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+/**
+ * Defines the actual page that displays a given event
+ */
 class EventPage extends StatefulWidget {
   const EventPage(
     this.event
@@ -102,6 +105,9 @@ class EventPageState extends State<EventPage> {
   }
 }
 
+/**
+ * Creates a time range given the start and end hour
+ */
 String createTimeRange(
   String startHR,
   String endHR,
@@ -120,18 +126,26 @@ String createTimeRange(
   endHR = (int.parse(endHR) > 12 ? int.parse(endHR) - 12 : int.parse(endHR)).toString();
   return "$startHR:$startMin $start_label - $endHR:$endMin $end_label";
 }
-check_organizer(Map<String, dynamic> json){
+/**
+ * Gives a default organizer if there isn't an organizer
+ */
+String check_organizer(Map<String, dynamic> json){
   print(json["organizer"]);
   return "No organizer";
 }
 
-find_month(int month){
+/**
+ * Finds the month name given the month number
+ */
+String find_month(int month){
   final months = ["January", "Februauy", "March", "April", "May", "June", "July", "August", 
                   "September", "October", "November", "December"];
   return months[month - 1];
 }
-
-remove_unicode(String str){
+/**
+ * Removes teh unicode from the text to the actual text
+ */
+String remove_unicode(String str){
   if(str.contains("&amp;")){
     str = str.replaceAll("&amp;", "&");
   }
@@ -141,7 +155,10 @@ remove_unicode(String str){
   return str;
 }
 
-get_categories(Map<String, dynamic> json){
+/**
+ * Gets the categories
+ */
+List<String> get_categories(Map<String, dynamic> json){
   final json_cat_list = json["categories"];
   print("HERE");
   List<String> categories= [];
@@ -152,6 +169,9 @@ get_categories(Map<String, dynamic> json){
   }
   return categories;
 }
+/**
+ * Defines an EventItem class that stores all the necessary information for an event
+ */
 class EventItem{
   final String name;
   final String startDate;
@@ -190,7 +210,9 @@ class EventItem{
       int.parse(day)
     );
   }
-
+/** 
+   * Creates an EventItem from a map
+  */
   factory EventItem.fromJson(Map<String, dynamic> json){
     return EventItem(
       name: remove_unicode(json["title"]), 
@@ -215,6 +237,9 @@ class EventItem{
     );
     
   }
+  /** 
+   * Creates an EventItem from a map
+  */
   factory EventItem.fromFirebase(Map<String, dynamic>? data){
     return EventItem(
       name: data!["title"], 
@@ -234,7 +259,9 @@ class EventItem{
     );
     
   }
-  
+  /** 
+   * Creates an EventItem from a map
+  */
   factory EventItem.fromMap(Map<String, dynamic> json){
     return EventItem(
       name: remove_unicode(json["title"]), 

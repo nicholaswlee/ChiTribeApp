@@ -8,6 +8,11 @@ import 'dart:convert';
 import 'CalendarPage.dart';
 import "EventsPage.dart";
 
+/**
+ * Loads all the data for the events calendar given the filters.
+ * This is a seperate widget to allow from data from
+ * the user loaded into the inner CalendarPageWidget.
+ */
 class Calendar extends StatefulWidget{
   Calendar(
     {required this.filters}
@@ -66,6 +71,9 @@ class CalendarState extends State<Calendar> {
   
 }
 
+/**
+ * The actual calendar for the calendar page. 
+ */
  class CalendarPageWidget extends StatefulWidget {
    final Map<DateTime, List<EventItem>>? events;
    CalendarPageWidget(this.events);
@@ -89,11 +97,15 @@ class CalendarPageWidgetState extends State<CalendarPageWidget> {
 
   @override
   List<EventItem> _getEventsForDay(DateTime day) {
-    // Implementation exampl
     return widget.events?[day] ?? [];
   }
 
     @override
+    /**
+     * Opens a new page that displays the details of the event.
+     * Also enables users to favorite the event given information 
+     * as to if the event has been favorited of not.
+     */
    void _pushPost(EventItem event, List<dynamic> favorited) {
     Navigator.of(context).push(
       // Add lines from here...

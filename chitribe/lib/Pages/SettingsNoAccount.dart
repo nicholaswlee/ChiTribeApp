@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'CalendarPage.dart';
+/**
+ * Defines the fake settings page
+ */
 
 class SettingsNoAccount extends StatelessWidget{
   const SettingsNoAccount(

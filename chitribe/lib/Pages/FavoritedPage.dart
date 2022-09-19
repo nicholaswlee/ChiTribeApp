@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+/**
+ * Defines the favorited page that shows all the events that have been favorited.
+ */
  class FavoritedPage extends StatefulWidget{
    const FavoritedPage({Key? key}) : super(key: key);
 
@@ -60,6 +63,10 @@ class _FavoritedPageState extends State<FavoritedPage> {
    }
 }
 
+/**
+ * Displays all of the icons of favorited events given the ids of
+ * all the favorited events.
+ */
 class FavoritedView extends StatefulWidget{
   final List<dynamic> ids;
   const FavoritedView(this.ids);
@@ -69,6 +76,9 @@ class FavoritedView extends StatefulWidget{
 
 class FavoritedViewState extends State<FavoritedView> {
     @override
+    /**
+     * Pushs a new page the displays the event details.
+     */
    void _pushPost(EventItem event, List<dynamic> favorited) {
     Navigator.of(context).push(
       // Add lines from here...

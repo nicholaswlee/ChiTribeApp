@@ -8,6 +8,11 @@ import '../Pages/Settings.dart';
 import '../Pages/SettingsNoAccount.dart';
 import 'auth_widgets.dart';
 
+/**
+ * The structure of the app when a user doesn't create an account.
+ * Still shows posts, but doesn't allow a user to see the events calendar
+ * nor the favorites page.
+ */
 class NoAccount extends StatefulWidget {
   const NoAccount(
     {
